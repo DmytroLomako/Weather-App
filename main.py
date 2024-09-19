@@ -70,8 +70,8 @@ if answer.status_code == 200:
     weather_description_main = data['list'][0]['weather'][0]['main'].title()
     weather_desription = data['list'][0]['weather'][0]['description'].title()
     time = data['list'][0]['dt_txt'].split(' ')[0]
-    day = time.split('-')[1]
-    month = time.split('-')[2]
+    month = time.split('-')[1]
+    day = time.split('-')[2]
     year = time.split('-')[0].split('20')[1]
     dt_txt = 'dt_txt'
     for dt_txt in data['list']:
@@ -87,7 +87,7 @@ frame_city_select.place(x = 0, y = 0)
 frame_weather = CTkFrame(app, 925, 800, fg_color = '#5DA7B1', border_color = '#096C82', border_width = 5)
 frame_weather.place(x = 275, y = 0)
 frame_user = CTkFrame(app, fg_color = '#5DA7B1', corner_radius = 0)
-path_image = os.path.abspath(__file__ + '/../user.png')
+path_image = os.path.abspath(__file__ + '/../weather/user.png')
 image = PIL.Image.open(path_image)
 image = image.resize([64, 50])
 image = PIL.ImageTk.PhotoImage(image)
@@ -100,7 +100,7 @@ label_user.grid(row = 0, column = 0)
 label_user_text.grid(row = 0, column = 1, padx = 5)
 search_entry = CTkEntry(frame_weather, font = ('Arial', 22), width = 238, height = 46, placeholder_text = 'Пошук', corner_radius = 20, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 3)
 search_entry.place(x = 645, y = 45)
-path_image3 = os.path.abspath(__file__ + '/../loope.png')
+path_image3 = os.path.abspath(__file__ + '/../weather/loope.png')
 image3 = PIL.Image.open(path_image3)
 image3 = image3.resize([42, 33])
 image3 = PIL.ImageTk.PhotoImage(image3)
@@ -169,7 +169,7 @@ def load_weather():
         if range_count[7] == 39:
             right_arrow.configure(text_color = '#a0bcbd')
     def left_arrow_func(event):
-        global range_count, list_first_hours_temp, list_first_hours_time, right_arrow
+        global range_count, list_first_hours_temp, list_first_hours_time, right_arrow, list_weather_temp, list_weather_icon_path
         if range_count[0] == 0:
             return False
         right_arrow.configure(text_color = 'white')
@@ -180,6 +180,11 @@ def load_weather():
             list_first_hours_time[j].configure(text = f'{list_weather_time[i]}:00')
             list_first_hours_temp[j].configure(text = f'{list_weather_temp[i]}°')
             path_to_image = os.path.abspath(__file__ + f'/../weather/{list_weather_icon[i]}.png')
+            try:
+                if list_weather_icon_path != None:
+                    path_to_image = list_weather_icon_path[i]
+            except:
+                pass
             if not os.path.exists(path_to_image):
                 path_to_image = os.path.abspath(__file__ + f'/../weather/01d.png')
                 print('Не знайдено картинку', list_weather_icon[0])
@@ -223,11 +228,11 @@ def load_weather():
         list_weather_max_min_temp.append(list_weather_temp[i])
     max_temp = str(max(list_weather_max_min_temp)).split('.')[0]
     min_temp = str(min(list_weather_max_min_temp)).split('.')[0]
-    path_image_arrow_up = os.path.abspath(__file__ + '/../arrow_up.png')
+    path_image_arrow_up = os.path.abspath(__file__ + '/../weather/arrow_up.png')
     image_arrow_up = PIL.Image.open(path_image_arrow_up)
     image_arrow_up = image_arrow_up.resize([28, 33])
     image_arrow_up = PIL.ImageTk.PhotoImage(image_arrow_up)
-    path_image_arrow_down = os.path.abspath(__file__ + '/../arrow_down.png')
+    path_image_arrow_down = os.path.abspath(__file__ + '/../weather/arrow_down.png')
     image_arrow_down = PIL.Image.open(path_image_arrow_down)
     image_arrow_down = image_arrow_down.resize([28, 33])
     image_arrow_down = PIL.ImageTk.PhotoImage(image_arrow_down)
@@ -353,7 +358,7 @@ def open_register(event):
         frame_exit_account.place(x = 380, y = 20)
         exit_account_text = CTkLabel(frame_exit_account, text = 'Вийти', font = ('Arial', 12), text_color = 'white')
         exit_account_text.grid(row = 0, column = 0, sticky = 'w')
-        path_image2 = os.path.abspath(__file__ + '/../exit.png')
+        path_image2 = os.path.abspath(__file__ + '/../weather/exit.png')
         image_exit = PIL.Image.open(path_image2)
         image_exit = image_exit.resize((40, 40))
         exit_account_image = CTkLabel(frame_exit_account, image = PIL.ImageTk.PhotoImage(image_exit), text = '')
