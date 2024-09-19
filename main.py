@@ -10,19 +10,6 @@ from datetime import datetime
 
 translator = GoogleTranslator(source = 'auto', target = 'uk')
 api = 
-# city = input("Enter a city: ")
-# url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api}'
-# answer = requests.get(url)
-# if answer.status_code == 200:
-#     data = answer.json()
-#     print(data)
-#     temp = data['main']['temp'] - 273.15
-#     temp = round(temp, 2)
-#     feels_like = round(data['main']['feels_like'] - 273.15, 2)
-#     wind_speed = data['wind']['speed']
-#     humidity = data['main']['humidity']
-#     weather_desription = data['weather'][0]['description']
-#     print(temp, feels_like, wind_speed, humidity, weather_desription)
 
 main_map = True
 path_to_json = os.path.abspath(__file__ + '/../save.json')
@@ -49,35 +36,7 @@ def sign_up_save(frame_auth, country_name_entry, city_name_entry, name_entry, su
                 json.dump({'country': user_country, 'city': user_city, 'name': user_name, 'surname': user_surname}, file, indent = 4, ensure_ascii = False)
     else:
         city_name_entry.configure(border_color = 'red')
-# frame_sign_up = CTk()
-# frame_sign_up.geometry('460x645')
-# frame_sign_up.title('Register')
-# frame_sign_up_contain = CTkFrame(frame_sign_up, 460, 645, fg_color = '#5DA7B1', border_color = '#096C82', border_width = 5)
-# frame_sign_up_contain.place(x = 0, y = 0)
-# sign_up_text = CTkLabel(frame_sign_up_contain, text = 'Реєстрація користувача', font = ('Arial', 28), text_color = 'white')
-# sign_up_text.place(x = 70, y = 40)
-# frame_sign_up_contain2 = CTkFrame(frame_sign_up_contain, 300, 300, fg_color = '#5DA7B1')
-# frame_sign_up_contain2.place(x = 30, y = 105)
-# country_name_text = CTkLabel(frame_sign_up_contain2, text = 'Країна:', font = ('Arial', 22), text_color = 'white')
-# country_name_text.grid(row = 0, column = 0, pady = 10, sticky = 'w', padx = 5)
-# city_name_text = CTkLabel(frame_sign_up_contain2, text = 'Місто:', font = ('Arial', 22), text_color = 'white')
-# city_name_text.grid(row = 2, column = 0, pady = 10, sticky = 'w', padx = 5)
-# name_text = CTkLabel(frame_sign_up_contain2, text = "Ім'я:", font = ('Arial', 22), text_color = 'white')
-# name_text.grid(row = 4, column = 0, pady = 10, sticky = 'w', padx = 5)
-# surname_text = CTkLabel(frame_sign_up_contain2, text = "Прізвище:", font = ('Arial', 22), text_color = 'white')
-# surname_text.grid(row = 6, column = 0, pady = 10, sticky = 'w', padx = 5)
-# country_name_entry = CTkEntry(frame_sign_up_contain2, font = ('Arial', 22), width = 218, placeholder_text = 'Введіть країну', corner_radius = 20, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 3)
-# country_name_entry.grid(row = 1, column = 0, pady = 10, sticky = 'w')
-# city_name_entry = CTkEntry(frame_sign_up_contain2, font = ('Arial', 22), width = 218, placeholder_text = 'Введіть місто', corner_radius = 20, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 3)
-# city_name_entry.grid(row = 3, column = 0, pady = 10, sticky = 'w')
-# name_entry = CTkEntry(frame_sign_up_contain2, font = ('Arial', 22), width = 295, placeholder_text = "Введіть ваше ім'я", corner_radius = 20, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 3)
-# name_entry.grid(row = 5, column = 0, pady = 10)
-# surname_entry = CTkEntry(frame_sign_up_contain2, font = ('Arial', 22), width = 295, placeholder_text = "Введіть ваше прізвище", corner_radius = 20, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 3)
-# surname_entry.grid(row = 7, column = 0, pady = 10)
-# button_save = CTkButton(frame_sign_up_contain, text = 'Зберегти', font = ('Arial', 22), corner_radius = 20, fg_color = '#096C82', hover_color = '#096C82', border_color = '#b5d3d9', border_width = 3, command = sign_up_save)
-# button_save.place(x = 155, y = 560)
-# frame_sign_up.mainloop()
-print(os.path.exists(path_to_json))
+
 if os.path.exists(path_to_json):
     with open(path_to_json, 'r') as file:
         data = json.load(file)
@@ -151,7 +110,7 @@ frame_current_position = CTkFrame(frame_weather, 315, 275, fg_color = '#5DA7B1')
 frame_current_position.place(x = 300, y = 120)
 weekdays = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота', 'Неділя']
 def load_weather():
-    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main
+    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image
     current_position_text = CTkLabel(frame_current_position, text = 'Поточна позиція', font = ('Arial', 35), text_color = 'white')
     current_position_text.grid(row = 0, column = 0, pady = 10)
     current_city_text = CTkLabel(frame_current_position, text = user_city, font = ('Arial', 22), text_color = 'white')
@@ -227,10 +186,10 @@ def load_weather():
         if range_count[0] == 0:
             left_arrow.configure(text_color = '#a0bcbd')
     right_arrow = CTkLabel(frame_weather, text = '>', font = ('Arial', 50), text_color = 'white')
-    right_arrow.place(x = 875, y = 520)
+    right_arrow.place(x = 875, y = 550)
     right_arrow.bind('<Button-1>', right_arrow_func)
     left_arrow = CTkLabel(frame_weather, text = '<', font = ('Arial', 50), text_color = '#a0bcbd')
-    left_arrow.place(x = 20, y = 520)
+    left_arrow.place(x = 20, y = 550)
     left_arrow.bind('<Button-1>', left_arrow_func)
     weekday_text = CTkLabel(frame_weather, text = weekdays[datetime.now().weekday()], font = ('Arial', 24), text_color = 'white')
     weekday_text.place(x = 700, y = 200)
@@ -273,8 +232,6 @@ def load_weather():
     arrow_up.place(x = 460, y = 360)
     arrow_down = CTkLabel(frame_weather, image = image_arrow_down, text = '', font = ('Arial', 30), text_color = 'white')
     arrow_down.place(x = 330, y = 360)
-    # current_max_min_temp = CTkLabel(frame_current_position, text = f'⬇️ {min_temp}°   ⬆️ {max_temp}°', font = ('Arial', 30), text_color = 'white')
-    # current_max_min_temp.grid(row = 4, column = 0, pady = 10)
     def current_time_func():
         app.after(1000, current_time_func)
         current_time_now = str(datetime.now()).split('.')[0].split(' ')[1]
@@ -307,23 +264,45 @@ def search_city(event):
         data = answer.json()
         temp = data['list'][0]['main']['temp'] - 273.15
         temp = round(temp, 1)
+        icon = data['list'][0]['weather'][0]['icon']
         feels_like = round(data['list'][0]['main']['feels_like'] - 273.15, 1)
         wind_speed = data['list'][0]['wind']['speed']
         humidity = data['list'][0]['main']['humidity']
+        weather_description_main = data['list'][0]['weather'][0]['main'].title()
         weather_desription = data['list'][0]['weather'][0]['description'].title()
         dt_txt = 'dt_txt'
         current_city_text.configure(text = user_city_search)
         current_temp_text.configure(text = f'{temp}°')
+        path_to_main_icon = os.path.abspath(__file__ + f'/../weather/{icon}.png')
+        if not os.path.exists(path_to_main_icon):
+            path_to_main_icon = os.path.abspath(__file__ + f'/../weather/01d.png')
+            print('Не знайдено картинку', list_weather_icon[0])
+        image_main_icon = PIL.Image.open(path_to_main_icon)
+        image_main_icon = image_main_icon.resize([180, 180])
+        image_main_icon = PIL.ImageTk.PhotoImage(image_main_icon)
+        current_image.configure(image = image_main_icon)
         weather_desription = translator.translate(weather_desription)
-        current_description_text.configure(text = weather_desription)
+        weather_description_main = translator.translate(weather_description_main).title()
+        current_description_text.configure(text = weather_description_main)
+        current_weather_description.configure(text = weather_desription)
         list_weather_time = []
         list_weather_temp = []
+        list_weather_icon = []
         for dt_txt in data['list']:
             list_weather_time.append(dt_txt['dt_txt'].split(' ')[1].split(':')[0])
             list_weather_temp.append(round(dt_txt['main']['temp'] - 273.15, 1))
+            path_to_icon = os.path.abspath(__file__ + f'/../weather/{dt_txt["weather"][0]["icon"]}.png')
+            if not os.path.exists(path_to_icon):
+                path_to_icon = os.path.abspath(__file__ + f'/../weather/01d.png')
+                print('Не знайдено картинку', list_weather_icon[0])
+            image_icon = PIL.Image.open(path_to_icon)
+            image_icon = image_icon.resize([50, 50])
+            image_icon = PIL.ImageTk.PhotoImage(image_icon)
+            list_weather_icon.append(image_icon)
         for i in range(8):
             list_first_hours_time[i].configure(text = f'{list_weather_time[i]}:00')
             list_first_hours_temp[i].configure(text = f'{list_weather_temp[i]}°')
+            list_weather_icon2[i].configure(image = list_weather_icon[i])
         list_weather_max_min_temp = []
         for i in range(8):
             list_weather_max_min_temp.append(list_weather_temp[i])
@@ -333,7 +312,7 @@ def search_city(event):
         max_temp = str(max(list_weather_max_min_temp)).split('.')[0]
         min_temp = str(min(list_weather_max_min_temp)).split('.')[0]
         current_city_select_max_temp_text.configure(text = f'mакс: {max_temp}°, мін: {min_temp}°')
-        current_max_min_temp.configure(text = f'⬇️ {min_temp}°   ⬆️ {max_temp}°')
+        current_max_temp.configure(text = f'{min_temp}°          {max_temp}°')
         # load_weather()
 search_loope.bind('<Button-1>', search_city)
 def open_register(event):
