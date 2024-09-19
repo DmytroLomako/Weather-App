@@ -110,7 +110,7 @@ frame_current_position = CTkFrame(frame_weather, 315, 275, fg_color = '#5DA7B1')
 frame_current_position.place(x = 300, y = 120)
 weekdays = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота', 'Неділя']
 def load_weather():
-    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image
+    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image, list_weather_icon
     current_position_text = CTkLabel(frame_current_position, text = 'Поточна позиція', font = ('Arial', 35), text_color = 'white')
     current_position_text.grid(row = 0, column = 0, pady = 10)
     current_city_text = CTkLabel(frame_current_position, text = user_city, font = ('Arial', 22), text_color = 'white')
@@ -142,7 +142,7 @@ def load_weather():
     current_weather_description.place(x = 30, y = 20)
     range_count = [0, 1, 2, 3, 4, 5, 6, 7]
     def right_arrow_func(event):
-        global range_count, list_first_hours_temp, list_first_hours_time, right_arrow
+        global range_count, list_first_hours_temp, list_first_hours_time, right_arrow, list_weather_temp, list_weather_icon_path
         if range_count[7] == 39:
             return False
         left_arrow.configure(text_color = 'white')
@@ -153,6 +153,11 @@ def load_weather():
             list_first_hours_time[j].configure(text = f'{list_weather_time[i]}:00')
             list_first_hours_temp[j].configure(text = f'{list_weather_temp[i]}°')
             path_to_image = os.path.abspath(__file__ + f'/../weather/{list_weather_icon[i]}.png')
+            try:
+                if list_weather_icon_path != None:
+                    path_to_image = list_weather_icon_path[i]
+            except:
+                pass
             if not os.path.exists(path_to_image):
                 path_to_image = os.path.abspath(__file__ + f'/../weather/01d.png')
                 print('Не знайдено картинку', list_weather_icon[0])
@@ -255,7 +260,7 @@ if user_name != None:
     app.after(1000, current_time_func)
 user_city_search = ''
 def search_city(event):
-    global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp
+    global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp, list_weather_temp, list_weather_icon, list_weather_time, list_weather_icon_path
     user_city_search = search_entry.get()
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={user_city_search}&appid={api}'
     answer = requests.get(url)
@@ -288,6 +293,7 @@ def search_city(event):
         list_weather_time = []
         list_weather_temp = []
         list_weather_icon = []
+        list_weather_icon_path = []
         for dt_txt in data['list']:
             list_weather_time.append(dt_txt['dt_txt'].split(' ')[1].split(':')[0])
             list_weather_temp.append(round(dt_txt['main']['temp'] - 273.15, 1))
@@ -299,6 +305,7 @@ def search_city(event):
             image_icon = image_icon.resize([50, 50])
             image_icon = PIL.ImageTk.PhotoImage(image_icon)
             list_weather_icon.append(image_icon)
+            list_weather_icon_path.append(path_to_icon)
         for i in range(8):
             list_first_hours_time[i].configure(text = f'{list_weather_time[i]}:00')
             list_first_hours_temp[i].configure(text = f'{list_weather_temp[i]}°')
