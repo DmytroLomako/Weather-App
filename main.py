@@ -9,7 +9,7 @@ from deep_translator import GoogleTranslator
 from datetime import datetime
 
 translator = GoogleTranslator(source = 'auto', target = 'uk')
-api = '752ea81eb24913b6bd544daeca993f8f'
+api = 
 
 main_map = True
 path_to_json = os.path.abspath(__file__ + '/../save.json')
@@ -261,50 +261,69 @@ def load_weather():
     current_city_select_max_temp_text = CTkLabel(frame_current_city, text = f'макс: {max_temp}°, мін: {min_temp}°', font = ('Arial', 12), text_color = 'white')
     current_city_select_max_temp_text.place(x = 120, y = 65)
 
-    list_cities = ['Kyiv', 'Rome', 'Paris', 'London', 'New York']
-    list_frames = []
-    list_city_names = []
-    for i in range(5):
-        frame = CTkFrame(frame_city_select, 235, 100, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 5, corner_radius = 20)
-        if i == 0:
-            frame.place(x = 20, y = 160)
-        else:
-            frame.place(x = 20, y = 160 + i * 130)
-        list_frames.append(frame)
-        city_name = CTkLabel(frame, text = list_cities[i], font = ('Arial', 16), text_color = 'white')
-        city_name.place(x = 14, y = 8)
-        list_city_names.append(city_name)
-        url_city = f'https://api.openweathermap.org/data/2.5/forecast?q={list_cities[i]}&appid={api}'
-        answer_city = get(url_city)
-        data_city = answer_city.json()
-        temp_city = data_city['list'][i]['main']['temp'] - 273.15
-        description_city = data_city['list'][i]['weather'][0]['description']
-        description_city = translator.translate(description_city).title()
-        city_temp_text = CTkLabel(frame, text = f'{str(temp_city).split('.')[0]}°', font = ('Arial', 50), text_color = 'white')
-        city_temp_text.place(x = 150, y = 10)
-        city_description_text = CTkLabel(frame, text = description_city, font = ('Arial', 13), text_color = 'white')
-        city_description_text.place(x = 14, y = 55)
-        list_weather_temp2 = []
-        for dt_txt in data_city['list']:
-            list_weather_temp2.append(round(dt_txt['main']['temp'] - 273.15, 1))
-        list_weather_max_min_temp2 = []
-        for j in range(8):
-            list_weather_max_min_temp2.append(list_weather_temp2[j])
-        max_temp2 = str(max(list_weather_max_min_temp2)).split('.')[0]
-        min_temp2 = str(min(list_weather_max_min_temp2)).split('.')[0]
-        city_max_min_temp_text = CTkLabel(frame, text = f'max: {max_temp2}°, min: {min_temp2}°', font = ('Arial', 12), text_color = 'white')
-        city_max_min_temp_text.place(x = 120, y = 65)
-    for framee in list_frames:
-        def func(event):
-            global user_city_search, city_name
-            index = list_frames.index(framee)
-            print(index)
-            user_city_search = list_city_names[index].cget('text')
-            print(user_city_search)
-            # user_city_search = list_cities[i]
+    class Sidebar_City:
+        def __init__(self, name, row):
+            self.name = name
+            self.row = row
+        def sidebar_city_func(self):
+            self.frame = CTkFrame(frame_city_select, 235, 100, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 5, corner_radius = 20)
+            self.frame.place(x = 20, y = 160 + 130 * (self.row - 1))
+            self.city_name = CTkLabel(self.frame, text = self.name, font = ('Arial', 16), text_color = 'white')
+            self.city_name.place(x = 14, y = 8)
+            url_city = f'https://api.openweathermap.org/data/2.5/forecast?q={self.name}&appid={api}'
+            answer_city = get(url_city)
+            data_city = answer_city.json()
+            temp_city = data_city['list'][0]['main']['temp'] - 273.15
+            description_city = data_city['list'][0]['weather'][0]['description']
+            self.description_city = translator.translate(description_city).title()
+            self.city_temp_text = CTkLabel(self.frame, text = f'{str(temp_city).split('.')[0]}°', font = ('Arial', 50), text_color = 'white')
+            self.city_temp_text.place(x = 150, y = 10)
+            self.city_description_text = CTkLabel(self.frame, text = description_city, font = ('Arial', 13), text_color = 'white')
+            self.city_description_text.place(x = 14, y = 55)
+            list_weather_temp_city = []
+            dt_txt = 'dt_txt'
+            for dt_txt in data_city['list']:
+                list_weather_temp_city.append((round(dt_txt['main']['temp'] - 273.15, 1)))
+            list_weather_max_min_temp_city = []
+            for i in range(8):
+                list_weather_max_min_temp_city.append(list_weather_temp_city[i])
+            city_max_temp = str(max(list_weather_max_min_temp_city)).split('.')[0]
+            city_min_temp = str(min(list_weather_max_min_temp_city)).split('.')[0]
+            self.city_max_min_temp_text = CTkLabel(self.frame, text = f'max: {city_max_temp}°, min: {city_min_temp}°', font = ('Arial', 12), text_color = 'white')
+            self.city_max_min_temp_text.place(x = 120, y = 65)
+        def click_city(self, event):
+            global user_city_search, search_city, user_city, temp, weather_desription, max_temp, min_temp
+            self.city_name.configure(text = user_city)
+            self.city_temp_text.configure(text = f'{str(temp).split('.')[0]}°')
+            self.city_description_text.configure(text = weather_desription)
+            self.city_max_min_temp_text.configure(text = f'max: {max_temp}°, min: {min_temp}°')
+            user_city_search = self.name
             search_city(None)
-        framee.bind('<Button-1>', func)
-    # frame.bind('<Button-1>', func)
+    kyiv = Sidebar_City('Kyiv', 1)
+    kyiv.sidebar_city_func()
+    kyiv.frame.bind('<Button-1>', kyiv.click_city)
+    kyiv.city_temp_text.bind('<Button-1>', kyiv.click_city)
+    
+    rome = Sidebar_City('Rome', 2)
+    rome.sidebar_city_func()
+    rome.frame.bind('<Button-1>', rome.click_city)
+    rome.city_temp_text.bind('<Button-1>', rome.click_city)
+    
+    paris = Sidebar_City('Paris', 3)
+    paris.sidebar_city_func()
+    paris.frame.bind('<Button-1>', paris.click_city)
+    paris.city_temp_text.bind('<Button-1>', paris.click_city)
+    
+    london = Sidebar_City('London', 4)
+    london.sidebar_city_func()
+    london.frame.bind('<Button-1>', london.click_city)
+    london.city_temp_text.bind('<Button-1>', london.click_city)
+    
+    new_york = Sidebar_City('New York', 5)
+    new_york.sidebar_city_func()
+    new_york.frame.bind('<Button-1>', new_york.click_city)
+    new_york.city_temp_text.bind('<Button-1>', new_york.click_city)
+
 if user_name != None:
     load_weather()
     app.after(1000, current_time_func)
