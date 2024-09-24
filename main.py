@@ -1,13 +1,12 @@
-import PIL.Image
-import PIL.ImageTk
-from requests import get
+import PIL, json, pytz
 from customtkinter import *
-import PIL
-import os
-import json
+from requests import get
 from deep_translator import GoogleTranslator
 from datetime import datetime
+from timezonefinder import TimezoneFinder
 
+
+tf = TimezoneFinder()
 translator = GoogleTranslator(source = 'auto', target = 'uk')
 api = 
 
@@ -69,13 +68,20 @@ if answer.status_code == 200:
     humidity = data['list'][0]['main']['humidity']
     weather_description_main = data['list'][0]['weather'][0]['main'].title()
     weather_desription = data['list'][0]['weather'][0]['description'].title()
-    time = data['list'][0]['dt_txt'].split(' ')[0]
+    lat = data['city']['coord']['lat']
+    lon = data['city']['coord']['lon']
+    tz = tf.timezone_at(lng = lon, lat = lat)
+    tz = pytz.timezone(tz)
+    time_week = datetime.now(tz)
+    time = str(datetime.now(tz))
+    hour = time.split(' ')[1].split(':')[0]
+    time = time.split(' ')[0].split('.')[0]
     month = time.split('-')[1]
     day = time.split('-')[2]
     year = time.split('-')[0].split('20')[1]
     dt_txt = 'dt_txt'
     for dt_txt in data['list']:
-        list_weather_time.append(dt_txt['dt_txt'].split(' ')[1].split(':')[0])
+        list_weather_time.append(int(dt_txt['dt_txt'].split(' ')[1].split(':')[0]))
         list_weather_temp.append(round(dt_txt['main']['temp'] - 273.15, 1))
         list_weather_icon.append(dt_txt['weather'][0]['icon'])
     # date_time = data['list'][]
@@ -110,7 +116,7 @@ frame_current_position = CTkFrame(frame_weather, 315, 275, fg_color = '#5DA7B1')
 frame_current_position.place(x = 300, y = 120)
 weekdays = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота', 'Неділя']
 def load_weather():
-    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image, list_weather_icon, city_name
+    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image, list_weather_icon, data, time_week, hour, left_arrow
     current_position_text = CTkLabel(frame_current_position, text = 'Поточна позиція', font = ('Arial', 35), text_color = 'white')
     current_position_text.grid(row = 0, column = 0, pady = 10)
     current_city_text = CTkLabel(frame_current_position, text = user_city, font = ('Arial', 22), text_color = 'white')
@@ -201,12 +207,20 @@ def load_weather():
     left_arrow = CTkLabel(frame_weather, text = '<', font = ('Arial', 50), text_color = '#a0bcbd')
     left_arrow.place(x = 20, y = 550)
     left_arrow.bind('<Button-1>', left_arrow_func)
-    weekday_text = CTkLabel(frame_weather, text = weekdays[datetime.now().weekday()], font = ('Arial', 24), text_color = 'white')
+    weekday_text = CTkLabel(frame_weather, text = weekdays[time_week.weekday()], font = ('Arial', 24), text_color = 'white')
     weekday_text.place(x = 700, y = 200)
     list_first_hours_temp = []
     list_first_hours_time = []
     list_weather_icon2 = []
     for i in range(8):
+        # first_hour = int(list_weather_time[0])
+        # hour = int(hour)
+        # if first_hour != hour:
+        #     print(type(first_hour), type(hour))
+        #     if first_hour > hour:
+        #         list_weather_time[i] += first_hour - hour
+        #     elif first_hour < hour:
+        #         list_weather_time[i] += hour - first_hour
         first_hours_time = CTkLabel(frame_hourly_weather, text = f'{list_weather_time[i]}:00', font = ('Arial', 18), text_color = 'white')
         first_hours_time.grid(row = 0, column = i, pady = 10, padx = 10)
         list_first_hours_time.append(first_hours_time)
@@ -243,10 +257,17 @@ def load_weather():
     arrow_down = CTkLabel(frame_weather, image = image_arrow_down, text = '', font = ('Arial', 30), text_color = 'white')
     arrow_down.place(x = 330, y = 360)
     def current_time_func():
+        global data, time
         app.after(1000, current_time_func)
-        current_time_now = str(datetime.now()).split('.')[0].split(' ')[1]
-        current_time_now_text = CTkLabel(frame_weather, text = current_time_now.split('.')[0], font = ('Arial', 30), text_color = 'white')
+        lat = data['city']['coord']['lat']
+        lon = data['city']['coord']['lon']
+        tz = tf.timezone_at(lng = lon, lat = lat)
+        tz = pytz.timezone(tz)
+        time = str(datetime.now(tz))
+        time = time.split(' ')[1].split('.')[0]
+        current_time_now_text = CTkLabel(frame_weather, text = time, font = ('Arial', 30), text_color = 'white')
         current_time_now_text.place(x = 677, y = 300)
+        
     current_time_func()
     frame_current_city = CTkFrame(frame_city_select, 235, 100, fg_color = '#5DA7B1', border_color = '#b5d3d9', border_width = 5, corner_radius = 20)
     frame_current_city.place(x = 20, y = 30)
@@ -303,33 +324,43 @@ def load_weather():
     kyiv.sidebar_city_func()
     kyiv.frame.bind('<Button-1>', kyiv.click_city)
     kyiv.city_temp_text.bind('<Button-1>', kyiv.click_city)
+    kyiv.city_name.bind('<Button-1>', kyiv.click_city)
+    kyiv.city_description_text.bind('<Button-1>', kyiv.click_city)
     
-    rome = Sidebar_City('Rome', 2)
-    rome.sidebar_city_func()
-    rome.frame.bind('<Button-1>', rome.click_city)
-    rome.city_temp_text.bind('<Button-1>', rome.click_city)
+    tokyo = Sidebar_City('Tokyo', 2)
+    tokyo.sidebar_city_func()
+    tokyo.frame.bind('<Button-1>', tokyo.click_city)
+    tokyo.city_temp_text.bind('<Button-1>', tokyo.click_city)
+    tokyo.city_name.bind('<Button-1>', tokyo.click_city)
+    tokyo.city_description_text.bind('<Button-1>', tokyo.click_city)
     
     paris = Sidebar_City('Paris', 3)
     paris.sidebar_city_func()
     paris.frame.bind('<Button-1>', paris.click_city)
     paris.city_temp_text.bind('<Button-1>', paris.click_city)
+    paris.city_name.bind('<Button-1>', paris.click_city)
+    paris.city_description_text.bind('<Button-1>', paris.click_city)
     
     london = Sidebar_City('London', 4)
     london.sidebar_city_func()
     london.frame.bind('<Button-1>', london.click_city)
     london.city_temp_text.bind('<Button-1>', london.click_city)
+    london.city_name.bind('<Button-1>', london.click_city)
+    london.city_description_text.bind('<Button-1>', london.click_city)
     
     new_york = Sidebar_City('New York', 5)
     new_york.sidebar_city_func()
     new_york.frame.bind('<Button-1>', new_york.click_city)
     new_york.city_temp_text.bind('<Button-1>', new_york.click_city)
+    new_york.city_name.bind('<Button-1>', new_york.click_city)
+    new_york.city_description_text.bind('<Button-1>', new_york.click_city)
 
 if user_name != None:
     load_weather()
     app.after(1000, current_time_func)
 user_city_search = ''
 def search_city(event):
-    global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp, list_weather_temp, list_weather_icon, list_weather_time, list_weather_icon_path, user_city
+    global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp, list_weather_temp, list_weather_icon, list_weather_time, list_weather_icon_path, user_city, data, hour, left_arrow, right_arrow
     if event != None:
         user_city_search = search_entry.get()
     user_city = user_city_search
@@ -337,6 +368,8 @@ def search_city(event):
     answer = get(url)
     if answer.status_code == 200:
         range_count = [0, 1, 2, 3, 4, 5, 6, 7]
+        left_arrow.configure(text_color = '#a0bcbd')
+        right_arrow.configure(text_color = 'white')
         data = answer.json()
         temp = data['list'][0]['main']['temp'] - 273.15
         temp = round(temp, 1)
@@ -366,7 +399,7 @@ def search_city(event):
         list_weather_icon = []
         list_weather_icon_path = []
         for dt_txt in data['list']:
-            list_weather_time.append(dt_txt['dt_txt'].split(' ')[1].split(':')[0])
+            list_weather_time.append(int(dt_txt['dt_txt'].split(' ')[1].split(':')[0]))
             list_weather_temp.append(round(dt_txt['main']['temp'] - 273.15, 1))
             path_to_icon = os.path.abspath(__file__ + f'/../weather/{dt_txt["weather"][0]["icon"]}.png')
             if not os.path.exists(path_to_icon):
@@ -377,6 +410,24 @@ def search_city(event):
             image_icon = PIL.ImageTk.PhotoImage(image_icon)
             list_weather_icon.append(image_icon)
             list_weather_icon_path.append(path_to_icon)
+        lat = data['city']['coord']['lat']
+        lon = data['city']['coord']['lon']
+        tz = tf.timezone_at(lng = lon, lat = lat)
+        tz = pytz.timezone(tz)
+        time = str(datetime.now(tz))
+        hour = time.split(' ')[1].split(':')[0]
+        first_hour = int(list_weather_time[0])
+        hour = int(hour)
+        count = -1
+        for i in range(len(list_weather_time)):
+            count += 1
+            hour = hour // 3 * 3
+            # if first_hour != hour:
+            list_weather_time[i] = hour + 3 * count
+            if list_weather_time[i] >= 24:
+                list_weather_time[i] -= 24
+                hour = 0
+                count = 0
         for i in range(8):
             list_first_hours_time[i].configure(text = f'{list_weather_time[i]}:00')
             list_first_hours_temp[i].configure(text = f'{list_weather_temp[i]}°')
