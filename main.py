@@ -1,6 +1,6 @@
 import PIL.Image
 import PIL.ImageTk
-import requests
+from requests import get
 from customtkinter import *
 import PIL
 import os
@@ -9,7 +9,7 @@ from deep_translator import GoogleTranslator
 from datetime import datetime
 
 translator = GoogleTranslator(source = 'auto', target = 'uk')
-api = 
+api = '752ea81eb24913b6bd544daeca993f8f'
 
 main_map = True
 path_to_json = os.path.abspath(__file__ + '/../save.json')
@@ -26,7 +26,7 @@ def sign_up_save(frame_auth, country_name_entry, city_name_entry, name_entry, su
     user_surname = surname_entry.get()
     label_user_text.configure(text = f'{user_name} {user_surname}')
     url = f'https://api.openweathermap.org/data/2.5/weather?q={user_city}&appid={api}'
-    answer = requests.get(url)
+    answer = get(url)
     if answer.status_code == 200:
         if user_country != '' and user_city != '' and user_name != '' and user_surname != '':
             frame_auth.destroy()
@@ -58,7 +58,7 @@ list_weather_time = []
 list_weather_temp = []
 list_weather_icon = []
 url = f'https://api.openweathermap.org/data/2.5/forecast?q={user_city}&appid={api}'
-answer = requests.get(url)
+answer = get(url)
 if answer.status_code == 200:
     data = answer.json()
     temp = data['list'][0]['main']['temp'] - 273.15
@@ -110,7 +110,7 @@ frame_current_position = CTkFrame(frame_weather, 315, 275, fg_color = '#5DA7B1')
 frame_current_position.place(x = 300, y = 120)
 weekdays = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота', 'Неділя']
 def load_weather():
-    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image, list_weather_icon
+    global current_city_text, current_temp_text, weather_desription, current_description_text, list_first_hours_temp, list_first_hours_time, current_time_func, current_city_select_text, range_count, right_arrow, current_description_select_text, current_temp_select_text, max_temp, min_temp, current_city_select_max_temp_text, weather_description_main, list_weather_icon2, current_max_temp, current_weather_description, current_image, list_weather_icon, city_name
     current_position_text = CTkLabel(frame_current_position, text = 'Поточна позиція', font = ('Arial', 35), text_color = 'white')
     current_position_text.grid(row = 0, column = 0, pady = 10)
     current_city_text = CTkLabel(frame_current_position, text = user_city, font = ('Arial', 22), text_color = 'white')
@@ -248,7 +248,7 @@ def load_weather():
         current_time_now_text = CTkLabel(frame_weather, text = current_time_now.split('.')[0], font = ('Arial', 30), text_color = 'white')
         current_time_now_text.place(x = 677, y = 300)
     current_time_func()
-    frame_current_city = CTkFrame(frame_city_select, 235, 100, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 5, corner_radius = 20)
+    frame_current_city = CTkFrame(frame_city_select, 235, 100, fg_color = '#5DA7B1', border_color = '#b5d3d9', border_width = 5, corner_radius = 20)
     frame_current_city.place(x = 20, y = 30)
     current_city_position_text = CTkLabel(frame_current_city, text = 'Поточна позиція', font = ('Arial', 16), text_color = 'white')
     current_city_position_text.place(x = 14, y = 8)
@@ -260,15 +260,61 @@ def load_weather():
     current_description_select_text.place(x = 14, y = 55)
     current_city_select_max_temp_text = CTkLabel(frame_current_city, text = f'макс: {max_temp}°, мін: {min_temp}°', font = ('Arial', 12), text_color = 'white')
     current_city_select_max_temp_text.place(x = 120, y = 65)
+
+    list_cities = ['Kyiv', 'Rome', 'Paris', 'London', 'New York']
+    list_frames = []
+    list_city_names = []
+    for i in range(5):
+        frame = CTkFrame(frame_city_select, 235, 100, fg_color = '#096C82', border_color = '#b5d3d9', border_width = 5, corner_radius = 20)
+        if i == 0:
+            frame.place(x = 20, y = 160)
+        else:
+            frame.place(x = 20, y = 160 + i * 130)
+        list_frames.append(frame)
+        city_name = CTkLabel(frame, text = list_cities[i], font = ('Arial', 16), text_color = 'white')
+        city_name.place(x = 14, y = 8)
+        list_city_names.append(city_name)
+        url_city = f'https://api.openweathermap.org/data/2.5/forecast?q={list_cities[i]}&appid={api}'
+        answer_city = get(url_city)
+        data_city = answer_city.json()
+        temp_city = data_city['list'][i]['main']['temp'] - 273.15
+        description_city = data_city['list'][i]['weather'][0]['description']
+        description_city = translator.translate(description_city).title()
+        city_temp_text = CTkLabel(frame, text = f'{str(temp_city).split('.')[0]}°', font = ('Arial', 50), text_color = 'white')
+        city_temp_text.place(x = 150, y = 10)
+        city_description_text = CTkLabel(frame, text = description_city, font = ('Arial', 13), text_color = 'white')
+        city_description_text.place(x = 14, y = 55)
+        list_weather_temp2 = []
+        for dt_txt in data_city['list']:
+            list_weather_temp2.append(round(dt_txt['main']['temp'] - 273.15, 1))
+        list_weather_max_min_temp2 = []
+        for j in range(8):
+            list_weather_max_min_temp2.append(list_weather_temp2[j])
+        max_temp2 = str(max(list_weather_max_min_temp2)).split('.')[0]
+        min_temp2 = str(min(list_weather_max_min_temp2)).split('.')[0]
+        city_max_min_temp_text = CTkLabel(frame, text = f'max: {max_temp2}°, min: {min_temp2}°', font = ('Arial', 12), text_color = 'white')
+        city_max_min_temp_text.place(x = 120, y = 65)
+    for framee in list_frames:
+        def func(event):
+            global user_city_search, city_name
+            index = list_frames.index(framee)
+            print(index)
+            user_city_search = list_city_names[index].cget('text')
+            print(user_city_search)
+            # user_city_search = list_cities[i]
+            search_city(None)
+        framee.bind('<Button-1>', func)
+    # frame.bind('<Button-1>', func)
 if user_name != None:
     load_weather()
     app.after(1000, current_time_func)
 user_city_search = ''
 def search_city(event):
     global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp, list_weather_temp, list_weather_icon, list_weather_time, list_weather_icon_path
-    user_city_search = search_entry.get()
+    if event != None:
+        user_city_search = search_entry.get()
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={user_city_search}&appid={api}'
-    answer = requests.get(url)
+    answer = get(url)
     if answer.status_code == 200:
         range_count = [0, 1, 2, 3, 4, 5, 6, 7]
         data = answer.json()
