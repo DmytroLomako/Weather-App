@@ -275,7 +275,7 @@ def load_weather():
             data_city = answer_city.json()
             temp_city = data_city['list'][0]['main']['temp'] - 273.15
             description_city = data_city['list'][0]['weather'][0]['description']
-            self.description_city = translator.translate(description_city).title()
+            description_city = translator.translate(description_city).title()
             self.city_temp_text = CTkLabel(self.frame, text = f'{str(temp_city).split('.')[0]}°', font = ('Arial', 50), text_color = 'white')
             self.city_temp_text.place(x = 150, y = 10)
             self.city_description_text = CTkLabel(self.frame, text = description_city, font = ('Arial', 13), text_color = 'white')
@@ -329,9 +329,10 @@ if user_name != None:
     app.after(1000, current_time_func)
 user_city_search = ''
 def search_city(event):
-    global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp, list_weather_temp, list_weather_icon, list_weather_time, list_weather_icon_path
+    global user_city_search, temp, feels_like, wind_speed, humidity, weather_desription, current_city_text, current_temp_text, range_count, max_temp, min_temp, list_weather_temp, list_weather_icon, list_weather_time, list_weather_icon_path, user_city
     if event != None:
         user_city_search = search_entry.get()
+    user_city = user_city_search
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={user_city_search}&appid={api}'
     answer = get(url)
     if answer.status_code == 200:
